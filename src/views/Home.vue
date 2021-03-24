@@ -20,12 +20,17 @@
     </p>
     <div v-for="product in products" v-bind:key="product.id">
       <hr />
-      {{ product.name }}
+      <p>{{ product.name }}</p>
+      <img v-bind:src="product.image_url" />
       <hr />
     </div>
   </div>
 </template>
-<style></style>
+<style>
+img {
+  width: 100px;
+}
+</style>
 <script>
 import axios from "axios";
 
