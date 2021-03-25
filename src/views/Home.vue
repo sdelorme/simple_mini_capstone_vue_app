@@ -21,14 +21,39 @@
     <div v-for="product in products" v-bind:key="product.id">
       <hr />
       <p>{{ product.name }}</p>
-      <img v-bind:src="product.image_url" />
+      <p><button v-on:click="showProduct(product)">Show More Info</button></p>
+      <dialog id="product-details">
+        <form method="dialog">
+          <h2>Product Information</h2>
+          <p>
+            Name:
+            <input v-model="currentProduct.name" />
+          </p>
+          <p>
+            Description:
+            <input v-model="currentProduct.description" />
+          </p>
+          <p>
+            Price: $
+            <input v-model="currentProduct.price" />
+          </p>
+          <p>
+            Image_url:
+            <input v-model="currentProduct.image_url" />
+          </p>
+          <button v-on:click="updateProduct(currentProduct)">Update</button>
+          <button v-on:click="destroyProduct(currentProduct)">Delete</button>
+          <button>Close</button>
+        </form>
+      </dialog>
       <hr />
+      <img v-bind:src="product.image_url" />
     </div>
   </div>
 </template>
 <style>
 img {
-  width: 100px;
+  width: 200px;
 }
 </style>
 <script>
@@ -43,6 +68,7 @@ export default {
       newProductDescription: "",
       newProductPrice: "",
       newProductImageUrl: "",
+      currentProduct: {},
     };
   },
   created: function () {
@@ -64,12 +90,37 @@ export default {
         image_url: this.newProductImageUrl,
       };
       axios.post("http://localhost:3000/api/products", params).then((response) => {
-      console.log(response.data);
-      this.products.push(response.data);
-      this.newProductName = "";
-      this.newProductDescription = "";
-      this.newProductPrice = "";
-      this.newProductImageUrl = "";
+        console.log(response.data);
+        this.products.push(response.data);
+        this.newProductName = "";
+        this.newProductDescription = "";
+        this.newProductPrice = "";
+        this.newProductImageUrl = "";
+      });
+    },
+    showProduct: function (theProduct) {
+      console.log("Yay showing the thing");
+      this.currentProduct = theProduct;
+      document.querySelector("#product-details").showModal();
+    },
+    updateProduct: function (theProduct) {
+      console.log("about to UPDATE this product though...");
+      var params = {
+        name: theProduct.name,
+        description: theProduct.description,
+        price: theProduct.price,
+        image_url: theProduct.image_url,
+      };
+      axios.patch("http://localhost:3000/api/products/" + theProduct.id, params).then((response) => {
+        console.log(response.data);
+      });
+    },
+    destroyProduct: function (theProduct) {
+      console.log(theProduct);
+      axios.delete("http://localhost:3000/api/products/" + theProduct.id).then((response) => {
+        console.log(response.data);
+        var index = this.products.indexOf(theProduct);
+        this.products.splice(index, 1);
       });
     },
   },
